@@ -15,56 +15,33 @@
 то функция должна возвращать null в массиве результатов.
 */
 
-const result = [];
+const getUsers = async (names) => {
+    const getUrl = (name) => {
+        return `https://api.github.com/users/${name}`;
+    }
 
-const getUsers = (names) => {
-    return new Promise((resolve, reject) => {
-        const getUrl = (name) => {
-            return `https://api.github.com/users/${name}`;
-        }
-    
-        let finallyCount = 0;
-        const length = names.length;
-    
-        const checkIsFinal = () => {
-            finallyCount++;
-            if (finallyCount === length) {
-                resolve(result);
-            }
-        }
-    
-        names.map(async (name, index) => {
-            result.push(undefined); 
-    
-            const url = getUrl(name);
-    
-            const response = await fetch(url);
-    
-            if (response.ok) {
-                const data = await response.json();
-    
-                result[index] = data;
-                console.log(`user ${name}:`);
-                console.log(data);
-            }
-            else {
-                result[index] = null;
-                console.log(`user ${name}:`);
-                console.log(null);
-            }
-    
-            checkIsFinal();
-        })
+    const queries = names.map((name) => {
+        const url = getUrl(name);
+
+        return fetch(url)
+            .then((response) => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    return null;
+                }
+            })
+            .catch(console.log);
     })
+
+    return await Promise.all(queries);
 } 
 
-getUsers([
+console.log(getUsers([
     '5211no-users213r1235132',
     'edlay17',
     'test',
     'HardhatChad',
     'lm-sys',
     '5235no-users213r1235132'
-]).then(result => {
-    console.log(result);
-});
+]));
